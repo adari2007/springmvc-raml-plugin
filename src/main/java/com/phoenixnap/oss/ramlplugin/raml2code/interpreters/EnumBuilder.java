@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+//import com.fasterxml.jackson.annotation.JsonProperty;
 import com.phoenixnap.oss.ramlplugin.raml2code.helpers.CodeModelHelper;
 import com.phoenixnap.oss.ramlplugin.raml2code.helpers.NamingHelper;
 import com.phoenixnap.oss.ramlplugin.raml2code.plugin.Config;
@@ -184,7 +184,7 @@ public class EnumBuilder extends AbstractBuilder {
 					enumConstant.arg(JExpr.lit((Long) name));
 				} else {
 					enumConstant.arg(JExpr.lit(name.toString()));
-					enumConstant.annotate(JsonProperty.class).param("value", name.toString());
+					//enumConstant.annotate(JsonProperty.class).param("value", name.toString());
 				}
 			}
 		}
