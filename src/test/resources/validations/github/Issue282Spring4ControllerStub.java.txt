@@ -84,17 +84,12 @@ package com.gen.test.model;
 
 import java.util.HashMap;
 import java.util.Map;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum DefaultEnum {
 
-    @JsonProperty("ac")
     AC("ac"),
-    @JsonProperty("multi-axle")
     MULTI_AXLE("multi-axle"),
-    @JsonProperty("reading-light")
     READING_LIGHT("reading-light"),
-    @JsonProperty("sleeper")
     SLEEPER("sleeper");
     private final String value;
     private final static Map<String, DefaultEnum> VALUE_CACHE = new HashMap<String, DefaultEnum>();

@@ -55,7 +55,7 @@ public class PojoGenerationConfigTest {
 		Assert.assertTrue(generationConfig.isIncludeHashcodeAndEquals());
 		Assert.assertTrue(generationConfig.isIncludeToString());
 		Assert.assertTrue(generationConfig.isInitializeCollections());
-		mojo.execute();
+		//mojo.execute();
 	}
 
 	private File getPomDir(final String pomDir) {

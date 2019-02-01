@@ -122,7 +122,7 @@ public class SpringMvcEndpointGeneratorMojo extends AbstractMojo {
 	 * such schemas/types are not generated.
 	 */
 	@Parameter(required = false, readonly = true, defaultValue = "false")
-	protected Boolean generateUnreferencedObjects;
+	protected Boolean generateUnreferencedObjects=false;
 
 	/**
 	 * The explicit base path under which the rest endpoints should be located.
@@ -143,14 +143,14 @@ public class SpringMvcEndpointGeneratorMojo extends AbstractMojo {
 	 * objects
 	 */
 	@Parameter(required = false, readonly = true, defaultValue = "false")
-	protected Boolean useJackson1xCompatibility;
+	protected Boolean useJackson1xCompatibility=false;
 
 	/**
 	 * The full qualified name of the Rule that should be used for code
 	 * generation.
 	 */
 	@Parameter(required = false, readonly = true, defaultValue = "com.phoenixnap.oss.ramlplugin.raml2code.rules.Spring4ControllerStubRule")
-	protected String rule;
+	protected String rule="com.phoenixnap.oss.ramlplugin.raml2code.rules.Spring4ControllerStubRule";
 
 	/**
 	 * Map of key/value configuration parameters that can be used to modify
@@ -230,10 +230,16 @@ public class SpringMvcEndpointGeneratorMojo extends AbstractMojo {
 
 	private String resolvedSchemaLocation;
 
-	protected void generateEndpoints() throws IOException {
+
+	public void generateEndpoints(String resolvedRamlPath, String resolvedPath, String basePackage) throws IOException {
 
 		File pomFile = null;
-		if (!pomPath.equals("NA")) {
+
+		if(basePackage!=null){
+			this.basePackage = basePackage;
+		}
+
+		if (pomPath!=null && !pomPath.equals("NA") && resolvedRamlPath==null) {
 
 			Model model = null;
 			FileReader reader = null;
@@ -248,23 +254,34 @@ public class SpringMvcEndpointGeneratorMojo extends AbstractMojo {
 			}
 			project = new MavenProject(model);
 			project.setFile(pomFile);
+
+			resolvedPath = project.getBasedir().getAbsolutePath();
+			if (resolvedPath.endsWith(File.separator) || resolvedPath.endsWith("/")) {
+				resolvedPath = resolvedPath.substring(0, resolvedPath.length() - 1);
+			}
+
+			resolvedRamlPath = project.getBasedir().getAbsolutePath();
+
+			if (!ramlPath.startsWith(File.separator) && !ramlPath.startsWith("/")) {
+				resolvedRamlPath += File.separator + ramlPath;
+			} else {
+				resolvedRamlPath += ramlPath;
+			}
 		}
 
-		String resolvedPath = project.getBasedir().getAbsolutePath();
-		if (resolvedPath.endsWith(File.separator) || resolvedPath.endsWith("/")) {
-			resolvedPath = resolvedPath.substring(0, resolvedPath.length() - 1);
-		}
-
-		String resolvedRamlPath = project.getBasedir().getAbsolutePath();
-
-		if (!ramlPath.startsWith(File.separator) && !ramlPath.startsWith("/")) {
-			resolvedRamlPath += File.separator + ramlPath;
-		} else {
-			resolvedRamlPath += ramlPath;
+		if(resolvedPath==null){
+			if (StringUtils.hasText(outputRelativePath)) {
+				if (!outputRelativePath.startsWith(File.separator) && !outputRelativePath.startsWith("/")) {
+					resolvedPath += File.separator;
+				}
+				resolvedPath += outputRelativePath;
+			} else {
+				resolvedPath += "/target/generated-sources/spring-mvc";
+			}
 		}
 
 		// Resolve schema location and add to classpath
-		resolvedSchemaLocation = getSchemaLocation();
+		//resolvedSchemaLocation = getSchemaLocation();
 
 		RamlRoot loadRamlFromFile = RamlLoader.loadRamlFromFile(new File(resolvedRamlPath).toURI().toString());
 
@@ -279,18 +296,13 @@ public class SpringMvcEndpointGeneratorMojo extends AbstractMojo {
 
 		// init configuration
 		Config.setMojo(this);
+		Config.resetFields();
+		Config.setBasePackage(basePackage);
+		Config.setPojoConfig(new PojoGenerationConfig());
+		this.addTimestampFolder = false;
 
 		RamlParser par = new RamlParser(getBasePath(loadRamlFromFile));
 		Set<ApiResourceMetadata> controllers = par.extractControllers(codeModel, loadRamlFromFile);
-
-		if (StringUtils.hasText(outputRelativePath)) {
-			if (!outputRelativePath.startsWith(File.separator) && !outputRelativePath.startsWith("/")) {
-				resolvedPath += File.separator;
-			}
-			resolvedPath += outputRelativePath;
-		} else {
-			resolvedPath += "/target/generated-sources/spring-mvc";
-		}
 
 		File rootDir = new File(resolvedPath + (addTimestampFolder == true ? System.currentTimeMillis() : "") + "/");
 
@@ -419,7 +431,7 @@ public class SpringMvcEndpointGeneratorMojo extends AbstractMojo {
 				((ConfigurableRule<?, ?, ?>) ruleInstance).applyConfiguration(ruleConfiguration);
 			}
 		} catch (Exception e) {
-			getLog().error("Could not instantiate Rule " + this.rule + ". The default Rule will be used for code generation.", e);
+			//getLog().error("Could not instantiate Rule " + this.rule + ". The default Rule will be used for code generation.", e);
 		}
 		return ruleInstance;
 	}
@@ -524,7 +536,7 @@ public class SpringMvcEndpointGeneratorMojo extends AbstractMojo {
 		long startTime = System.currentTimeMillis();
 
 		try {
-			generateEndpoints();
+			generateEndpoints(null,null,null);
 		} catch (IOException e) {
 			throw new MojoExecutionException(e, "Unexpected exception while executing Spring MVC Endpoint Generation Plugin.",
 					e.toString());

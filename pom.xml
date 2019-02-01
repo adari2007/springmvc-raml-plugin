@@ -3,8 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	  
   	<groupId>com.phoenixnap.oss</groupId>
-	<artifactId>springmvc-raml-plugin</artifactId>
-	<version>2.1.0-disable-enum-annotations</version>
+	<artifactId>springmvc-raml-cli</artifactId>
+	<version>2.1.0-priceline</version>
 	
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -212,6 +212,21 @@
 							</goals>
 						</execution>
 					</executions>
+				</plugin>
+				<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<configuration>
+						<archive>
+							<manifest>
+								<mainClass>com.phoenixnap.oss.ramlplugin.raml2code.plugin.CodeGen</mainClass>
+							</manifest>
+						</archive>
+						<descriptorRefs>
+							<descriptorRef>jar-with-dependencies</descriptorRef>
+						</descriptorRefs>
+						<finalName>springmvc-raml-cli-2.1.0-priceline</finalName>
+						<appendAssemblyId>false</appendAssemblyId>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
